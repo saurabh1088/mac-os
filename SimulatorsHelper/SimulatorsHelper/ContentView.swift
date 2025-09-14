@@ -5,40 +5,25 @@
 //  Created by Saurabh Verma on 14/09/25.
 //
 
+import Foundation
 import SwiftUI
 
 struct ContentView: View {
-    @State private var didSelectOptionOne: Bool = false
-    @State private var didSelectOptionTwo: Bool = false
+    @State private var selectedMenu: MenuOption? = .simulators
 
     var body: some View {
         NavigationSplitView {
-            VStack {
-                Button {
-                    didSelectOptionOne.toggle()
-                } label: {
-                    Text("Simulators")
-                }
-                
-                Button {
-                    didSelectOptionTwo.toggle()
-                } label: {
-                    Text("Others")
-                }
-
+            List(MenuOption.allCases, id: \.self, selection: $selectedMenu) { option in
+                Label(option.label, systemImage: option.imageName)
             }
         } detail: {
-            if didSelectOptionOne {
+            if let selected = selectedMenu {
                 VStack {
-                    Image(systemName: "iphone.gen2.motion")
-                    Text("All the simulators we have")
+                    Image(systemName: selected.imageName)
+                    Text(selected.description)
                 }
-            }
-            if didSelectOptionTwo {
-                VStack {
-                    Image(systemName: "arrow.2.circlepath.circle")
-                    Text("Other useful stuff")
-                }
+            } else {
+                Text("Select an option")
             }
         }
     }
