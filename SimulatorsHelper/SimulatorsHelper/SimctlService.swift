@@ -8,13 +8,25 @@
 import Foundation
 
 protocol SimctlServiceProvider {
+    var isSandboxEnabled: Bool { get }
     func listAvailableSimulators()
 }
 
 class SimctlService: SimctlServiceProvider {
+    let isSandboxEnabled: Bool = false
+    func listAvailableSimulators() {
+        if isSandboxEnabled {
+            // TODO: Source information from server
+        } else {
+            runProcess()
+        }
+    }
+}
+
+extension SimctlService {
     // NOTE : This will not work in samndboxed app and below error will be observed
     // xcrun: error: cannot be used within an App Sandbox.
-    func listAvailableSimulators() {
+    private func runProcess() {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/xcrun")
         process.arguments = ["simctl", "list", "devices", "available", "--json"]
@@ -46,19 +58,4 @@ class SimctlService: SimctlServiceProvider {
             print("Error: \(error.localizedDescription)")
         }
     }
-}
-
-struct SimctlDeviceList: Codable {
-    let devices: [String: [SimctlDevice]]
-}
-
-struct SimctlDevice: Codable {
-    let state: String
-    let isAvailable: Bool
-    let name: String
-    let udid: String
-    let deviceTypeIdentifier: String
-    let dataPath: String
-    let dataPathSize: Int
-    let logPath: String
 }
