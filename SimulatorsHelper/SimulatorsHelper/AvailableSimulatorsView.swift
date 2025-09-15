@@ -8,11 +8,13 @@
 import SwiftUI
 
 struct AvailableSimulatorsView: View {
+    @State private var viewModel = AvailableSimulatorsViewModel(simctlService: SimctlService())
     @State private var showSimulators: Bool = false
     
     var body: some View {
         VStack {
             Button {
+                viewModel.loadAvailableSimulators()
                 showSimulators.toggle()
             } label: {
                 Text("Show available simulators")
