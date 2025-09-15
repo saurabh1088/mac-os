@@ -16,14 +16,7 @@ struct MainLandingPage: View {
                 Label(option.label, systemImage: option.imageName)
             }
         } detail: {
-            if let selected = selectedMenu {
-                VStack {
-                    Image(systemName: selected.imageName)
-                    Text(selected.description)
-                }
-            } else {
-                Text("Select an option")
-            }
+            selectedMenu?.detailView
         }
     }
 }

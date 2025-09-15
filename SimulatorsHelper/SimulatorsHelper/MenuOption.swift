@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 enum MenuOption: String, CaseIterable, Identifiable, Hashable {
     case simulators = "Simulators"
@@ -18,6 +19,16 @@ enum MenuOption: String, CaseIterable, Identifiable, Hashable {
         switch self {
         case .simulators: return "All the simulators we have"
         case .others: return "Other useful stuff"
+        }
+    }
+    
+    @ViewBuilder
+    var detailView: some View {
+        switch self {
+        case .simulators:
+            AvailableSimulatorsView()
+        case .others:
+            EmptyView()
         }
     }
 }
