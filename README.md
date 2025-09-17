@@ -16,3 +16,7 @@ Collection of macOS based apps
 
 ### 2. SimctlHelper
 - macOS based command line tool to wrap simctl providing helper APIs.
+
+### 3. OSLogVsPrint
+- macOS based command line tool showing difference on output observed when print vs OSLog statements are used
+
