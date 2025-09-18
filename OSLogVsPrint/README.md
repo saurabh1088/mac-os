@@ -18,3 +18,7 @@
 ```
 log stream --predicate 'subsystem == "com.saurabhverma.OSLogVsPrint"' --info
 ```
+
+### Console App
+- `print` statements are not visible
+- `OSLog` statements will be observed and can be filtered by subsystem

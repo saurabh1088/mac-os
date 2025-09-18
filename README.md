@@ -19,4 +19,6 @@ Collection of macOS based apps
 
 ### 3. OSLogVsPrint
 - macOS based command line tool showing difference on output observed when print vs OSLog statements are used
+- For more details check out
+    - https://github.com/saurabh1088/mac-os/blob/main/OSLogVsPrint/README.md
 
