@@ -9,18 +9,32 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
+    
+    // TODO: Delete this once proper menu items are created
+    let menu: [MenuCategory] = [MenuCategory(title: "Menu One", items: [MenuItem(title: "One A"), MenuItem(title: "One B")]),
+                                MenuCategory(title: "Menu Two", items: [MenuItem(title: "Two A"), MenuItem(title: "Two B")]),
+                                MenuCategory(title: "Menu Three", items: [MenuItem(title: "Three A"), MenuItem(title: "Three B")])]
+    
+    @State private var selectedMenu: MenuCategory?
+    @State private var selectedItem: MenuItem?
 
     var body: some View {
         NavigationSplitView {
-            MainSidebarMenuItemView(title: "Menu Item 1",
-                                    systemImageName: "filemenu.and.pointer.arrow",
-                                    customImageName: nil)
+            List(menu, id: \.id, selection: $selectedMenu) { item in
+                NavigationLink(item.title, value: item)
+            }
         } content: {
-            MainSidebarMenuItemView(title: "Sub Menu Item 1",
-                                    systemImageName: "filemenu.and.pointer.arrow",
-                                    customImageName: nil)
+            if let items = selectedMenu?.items {
+                List(items, id: \.id, selection: $selectedItem) { item in
+                    NavigationLink(item.title, value: item)
+                }
+            }
         } detail: {
-            Text("Detail View")
+            VStack {
+                Text("Detail View \(selectedMenu?.title)")
+                Text("Detail View \(selectedItem?.title)")
+            }
+            
         }
     }
 }
