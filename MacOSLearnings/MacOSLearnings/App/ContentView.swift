@@ -28,21 +28,9 @@ struct ContentView: View {
             VStack {
                 if selectedMenu?.title == "Container Views" {
                     if selectedItem?.title == "VStack" {
-                        VStack {
-                            Text("This")
-                            Text("is")
-                            Text("placed in")
-                            Text("a")
-                            Text("VStack")
-                        }
+                        VStackExamplesView()
                     } else {
-                        HStack {
-                            Text("This")
-                            Text("is")
-                            Text("placed in")
-                            Text("a")
-                            Text("HStack")
-                        }
+                        HStackExamplesView()
                     }
                 } else {
                     Text("Detail View \(selectedMenu?.title)")
