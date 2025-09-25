@@ -58,8 +58,6 @@ struct VStackExamplesView: View {
                 Text("VStack")
             }
             .padding(30)
-            .background(Color(.windowBackgroundColor))
-            .cornerRadius(12)
             
             Divider()
             
