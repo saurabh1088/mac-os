@@ -15,6 +15,9 @@ struct HStackExamplesView: View {
         VStack {
             Divider()
             HStack(alignment: verticalAlignment, spacing: spacing) {
+                Image(systemName: "square.stack.3d.down.right.fill")
+                    .resizable()
+                    .frame(width: 50, height: 50)
                 Text("This")
                 Text("is")
                 Text("placed in")
