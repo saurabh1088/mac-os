@@ -26,8 +26,20 @@ struct HStackExamplesView: View {
             }
             Divider()
             HStack {
-                Button("Vertical Alignment") {
+                Button("Vertical Alignment Bottom") {
+                    verticalAlignment = .bottom
+                }
+                Button("Vertical Alignment Top") {
                     verticalAlignment = .top
+                }
+                Button("Vertical Alignment Center") {
+                    verticalAlignment = .center
+                }
+                Button("Vertical Alignment First Text Baseline") {
+                    verticalAlignment = .firstTextBaseline
+                }
+                Button("Vertical Alignment Last Text Baseline") {
+                    verticalAlignment = .lastTextBaseline
                 }
                 Button("Add spacing") {
                     if spacing < 100 {
