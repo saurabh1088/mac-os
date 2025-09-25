@@ -7,16 +7,49 @@
 
 import SwiftUI
 
+enum VStackAlignmentOption: String, CaseIterable, Identifiable {
+    case leading, center, trailing, listRowSeparatorLeading, listRowSeparatorTrailing
+    var id: String { self.rawValue }
+    
+    // Helper to get the actual SwiftUI alignment value.
+    var alignment: HorizontalAlignment {
+        switch self {
+        case .leading: return .leading
+        case .center: return .center
+        case .trailing: return .trailing
+        case .listRowSeparatorLeading: return .listRowSeparatorLeading
+        case .listRowSeparatorTrailing: return .listRowSeparatorTrailing
+        }
+    }
+    
+    var description: String {
+        switch self {
+        case .leading: return "Leading"
+        case .center: return "Center"
+        case .trailing: return "Trailing"
+        case .listRowSeparatorLeading: return "List Row Separator Leading"
+        case .listRowSeparatorTrailing: return "List Row Separator Trailing"
+        }
+    }
+}
+
 struct VStackExamplesView: View {
-    @State private var horizontalAlignment: HorizontalAlignment = .center
+    @State private var horizontalAlignment: VStackAlignmentOption = .center
     @State private var spacing: CGFloat = 2
     
     var body: some View {
         VStack {
+            Text("VStack Properties Demo")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .padding(.top, 20)
+            
             Divider()
-            VStack(alignment: horizontalAlignment, spacing: spacing) {
+            
+            VStack(alignment: horizontalAlignment.alignment, spacing: spacing) {
                 Image(systemName: "square.stack.3d.up.fill")
                     .resizable()
+                    .aspectRatio(contentMode: .fit)
                     .frame(width: 50, height: 50)
                 Text("This")
                 Text("is")
@@ -24,32 +57,42 @@ struct VStackExamplesView: View {
                 Text("a")
                 Text("VStack")
             }
+            .padding(30)
+            .background(Color(.windowBackgroundColor))
+            .cornerRadius(12)
+            
             Divider()
             
-            HStack {
-                Button("Horizontal Alignment Center") {
-                    horizontalAlignment = .center
-                }
-                Button("Horizontal Alignment Leading") {
-                    horizontalAlignment = .leading
-                }
-                Button("Horizontal Alignment List Row Separator Leading") {
-                    horizontalAlignment = .listRowSeparatorLeading
-                }
-                Button("Horizontal Alignment List Row Separator Trailing") {
-                    horizontalAlignment = .listRowSeparatorTrailing
-                }
-                Button("Horizontal Alignment Trailing") {
-                    horizontalAlignment = .trailing
-                }
-                Button("Add spacing") {
-                    if spacing < 100 {
-                        spacing = spacing + 10
-                    } else {
-                        spacing = 2
+            VStack(alignment: .leading, spacing: 15) {
+                Text("Controls")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                
+                // Use a Picker for a clean way to select an alignment option.
+                Picker("Alignment", selection: $horizontalAlignment) {
+                    ForEach(VStackAlignmentOption.allCases) { option in
+                        Text(option.description)
+                            .tag(option)
                     }
                 }
+                .pickerStyle(.menu) // A standard macOS dropdown menu.
+                .frame(maxWidth: 300)
+                
+                // Use a Slider for a more intuitive way to adjust spacing.
+                VStack(alignment: .leading) {
+                    Text("Spacing: \(spacing, specifier: "%.1f")")
+                    Slider(value: $spacing, in: 0...50) {
+                        Text("Spacing")
+                    } minimumValueLabel: {
+                        Text("0")
+                    } maximumValueLabel: {
+                        Text("50")
+                    }
+                    .frame(maxWidth: 300)
+                }
             }
+            .padding(.horizontal)
+            .padding(.bottom, 20)
         }
     }
 }
