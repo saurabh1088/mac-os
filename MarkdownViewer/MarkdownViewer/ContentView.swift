@@ -40,7 +40,15 @@ struct ContentView: View {
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
-        panel.allowedContentTypes = [UTType(tag: "md", tagClass: .filenameExtension, conformingTo: .plainText)!]
+        
+        let markdownTypes: [UTType] = [
+            UTType(filenameExtension: "md")!,
+            UTType(filenameExtension: "markdown")!,
+            UTType.plainText, // This allows .txt and often .md
+            UTType.utf8PlainText
+        ]
+
+        panel.allowedContentTypes = markdownTypes
         
         if panel.runModal() == .OK, let url = panel.url {
             vm.loadFiles(from: url)
