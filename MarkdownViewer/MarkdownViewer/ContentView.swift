@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct ContentView: View {
     @StateObject private var vm = FolderViewModel()
@@ -39,6 +40,7 @@ struct ContentView: View {
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
+        panel.allowedContentTypes = [UTType(tag: "md", tagClass: .filenameExtension, conformingTo: .plainText)!]
         
         if panel.runModal() == .OK, let url = panel.url {
             vm.loadFiles(from: url)
