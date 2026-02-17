@@ -8,14 +8,41 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var vm = FolderViewModel()
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationSplitView {
+            // SIDEBAR: Browsing
+            List(vm.files, selection: $vm.selectedFile) { file in
+                NavigationLink(value: file) {
+                    Label(file.name, systemImage: "doc.text")
+                }
+            }
+            .toolbar {
+                Button(action: selectFolder) {
+                    Label("Open Folder", systemImage: "folder.badge.plus")
+                }
+            }
+        } detail: {
+            // DETAIL: Reading
+            if let selected = vm.selectedFile {
+                MarkdownReaderView(file: selected)
+            } else {
+                Text("Select a markdown file to start reading")
+                    .foregroundColor(.secondary)
+            }
         }
-        .padding()
+    }
+
+    private func selectFolder() {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        
+        if panel.runModal() == .OK, let url = panel.url {
+            vm.loadFiles(from: url)
+        }
     }
 }
 
