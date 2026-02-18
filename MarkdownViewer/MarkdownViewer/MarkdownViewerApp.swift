@@ -13,5 +13,8 @@ struct MarkdownViewerApp: App {
         WindowGroup {
             ContentView()
         }
+        .windowStyle(.hiddenTitleBar)
+        .windowToolbarStyle(.unified(showsTitle: false))
+        .defaultSize(width: 900, height: 700)
     }
 }
