@@ -6,27 +6,24 @@
 //
 
 import SwiftUI
-import UniformTypeIdentifiers
 
 struct ContentView: View {
-    @State private var selectedFileURL: URL? = nil
-    @State private var markdownText: String = ""
-    @State private var attributedMarkdown: AttributedString? = nil
-    @State private var errorMessage: String? = nil
+    @StateObject private var viewModel = MarkdownViewerViewModel()
     
     var body: some View {
         VStack(spacing: 0) {
-            // Toolbar / header
+            // Header / Toolbar
             HStack {
-                Button("Open Markdown File…") {
-                    openFilePicker()
+                Button("Open Markdown…") {
+                    viewModel.openFile()
                 }
                 .buttonStyle(.borderedProminent)
+                .keyboardShortcut("o", modifiers: .command)
                 
                 Spacer()
                 
-                if let filename = selectedFileURL?.lastPathComponent {
-                    Text(filename)
+                if let name = viewModel.fileName {
+                    Text(name)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -34,79 +31,57 @@ struct ContentView: View {
             .padding()
             .background(Color(NSColor.windowBackgroundColor))
             
-            // Main content area
-            if let error = errorMessage {
-                VStack {
-                    Image(systemName: "exclamationmark.triangle")
-                        .font(.largeTitle)
-                        .foregroundStyle(.red)
-                    Text(error)
-                        .foregroundStyle(.red)
-                        .padding()
+            // Main content
+            Group {
+                if let error = viewModel.errorMessage {
+                    errorView(error)
+                } else if viewModel.attributedContent == nil {
+                    welcomeView
+                } else if let content = viewModel.attributedContent {
+                    readerView(content)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if markdownText.isEmpty {
-                // Welcome screen
-                VStack(spacing: 20) {
-                    Image(systemName: "doc.richtext.fill")
-                        .font(.system(size: 80))
-                        .foregroundStyle(.secondary)
-                    
-                    Text("Select a .md file to read")
-                        .font(.title2)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let attributed = attributedMarkdown {
-                // Rendered Markdown
-                ScrollView {
-                    Text(attributed)
-                        .font(.system(.body, design: .serif))
-                        .lineSpacing(6)
-                        .padding(24)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .background(Color(NSColor.textBackgroundColor))
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(minWidth: 680, minHeight: 500)
+        .frame(minWidth: 720, minHeight: 540)
     }
     
-    private func openFilePicker() {
-        let panel = NSOpenPanel()
-        panel.allowedContentTypes = [UTType(filenameExtension: "md")!, UTType.plainText]
-        panel.allowsMultipleSelection = false
-        panel.canChooseDirectories = false
-        
-        if panel.runModal() == .OK, let url = panel.url {
-            loadMarkdown(from: url)
+    // MARK: - Subviews
+    
+    private var welcomeView: some View {
+        VStack(spacing: 24) {
+            Image(systemName: "doc.richtext.fill")
+                .font(.system(size: 72))
+                .foregroundStyle(.secondary)
+            
+            Text("Open a Markdown file to start reading")
+                .font(.title2)
+                .foregroundStyle(.secondary)
         }
     }
     
-    private func loadMarkdown(from url: URL) {
-        do {
-            guard url.startAccessingSecurityScopedResource() else {
-                errorMessage = "Cannot access the selected file"
-                return
-            }
-            defer { url.stopAccessingSecurityScopedResource() }
+    private func errorView(_ message: String) -> some View {
+        VStack(spacing: 16) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.system(size: 60))
+                .foregroundStyle(.red)
             
-            let content = try String(contentsOf: url, encoding: .utf8)
-            markdownText = content
-            
-            // Convert Markdown → AttributedString
-            if let attr = try? AttributedString(markdown: content) {
-                attributedMarkdown = attr
-            } else {
-                // Fallback: plain text if Markdown parsing fails
-                attributedMarkdown = AttributedString(content)
-            }
-            
-            selectedFileURL = url
-            errorMessage = nil
-        } catch {
-            errorMessage = "Failed to read file: \(error.localizedDescription)"
+            Text(message)
+                .foregroundStyle(.red)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
         }
+    }
+    
+    private func readerView(_ content: AttributedString) -> some View {
+        ScrollView {
+            Text(content)
+                .font(.system(.body, design: .serif))
+                .lineSpacing(8)
+                .padding(40)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .background(Color(NSColor.textBackgroundColor))
     }
 }
 
