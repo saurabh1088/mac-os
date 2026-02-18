@@ -11,7 +11,7 @@ import SwiftUI
 struct MarkdownReaderApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MarkdownViewerView()
         }
         .defaultSize(width: 900, height: 700)
         .windowStyle(.hiddenTitleBar)
