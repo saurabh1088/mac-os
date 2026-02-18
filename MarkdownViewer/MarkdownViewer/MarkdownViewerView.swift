@@ -10,9 +10,11 @@ import SwiftUI
 struct MarkdownViewerView: View {
     @StateObject private var viewModel = MarkdownViewerViewModel()
     
+    @AppStorage("preferredViewMode") private var preferredViewMode: String = "text"  // "text" or "web"
+    
     var body: some View {
         VStack(spacing: 0) {
-            // Header / Toolbar
+            // Toolbar
             HStack {
                 Button("Open Markdown…") {
                     viewModel.openFile()
@@ -27,26 +29,58 @@ struct MarkdownViewerView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
+                
+                // View mode toggle
+                Picker("View Mode", selection: $preferredViewMode) {
+                    Text("Text").tag("text")
+                    Text("Web").tag("web")
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 180)
             }
             .padding()
             .background(Color(NSColor.windowBackgroundColor))
             
             // Main content
-            Group {
-                if let error = viewModel.errorMessage {
-                    errorView(error)
-                } else if viewModel.attributedContent == nil {
-                    welcomeView
-                } else if let content = viewModel.attributedContent {
-                    readerView(content)
-                }
+            if let error = viewModel.errorMessage {
+                errorView(error)
+            } else if viewModel.markdownText == nil {
+                welcomeView
+            } else {
+                contentArea
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(minWidth: 720, minHeight: 540)
     }
     
-    // MARK: - Subviews
+    @ViewBuilder
+    private var contentArea: some View {
+        if preferredViewMode == "web", let html = viewModel.htmlContent {
+            WebView(html: html)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if let attr = try? AttributedString(markdown: viewModel.markdownText ?? "") {
+            ScrollView {
+                Text(attr)
+                    .font(.system(.body, design: .serif))
+                    .lineSpacing(8)
+                    .padding(40)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .background(Color(NSColor.textBackgroundColor))
+        } else {
+            // Fallback plain text
+            ScrollView {
+                Text(viewModel.markdownText ?? "")
+                    .font(.system(.body, design: .serif))
+                    .lineSpacing(8)
+                    .padding(40)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .background(Color(NSColor.textBackgroundColor))
+        }
+    }
+    
+    // MARK: - Subviews (unchanged)
     
     private var welcomeView: some View {
         VStack(spacing: 24) {
@@ -58,6 +92,7 @@ struct MarkdownViewerView: View {
                 .font(.title2)
                 .foregroundStyle(.secondary)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     private func errorView(_ message: String) -> some View {
@@ -71,17 +106,7 @@ struct MarkdownViewerView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
         }
-    }
-    
-    private func readerView(_ content: AttributedString) -> some View {
-        ScrollView {
-            Text(content)
-                .font(.system(.body, design: .serif))
-                .lineSpacing(8)
-                .padding(40)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .background(Color(NSColor.textBackgroundColor))
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 

@@ -7,12 +7,14 @@
 
 import SwiftUI
 import Combine
+import WebKit
 import UniformTypeIdentifiers
 
 @MainActor
 protocol MarkdownViewerViewModelProtocol: ObservableObject {
     var fileName: String? { get }
-    var attributedContent: AttributedString? { get }
+    var markdownText: String? { get }          // for text view
+    var htmlContent: String? { get }           // for web view
     var errorMessage: String? { get }
     var isLoading: Bool { get }
     
@@ -23,11 +25,10 @@ protocol MarkdownViewerViewModelProtocol: ObservableObject {
 @MainActor
 final class MarkdownViewerViewModel: MarkdownViewerViewModelProtocol {
     @Published var fileName: String? = nil
-    @Published var attributedContent: AttributedString? = nil
+    @Published var markdownText: String? = nil
+    @Published var htmlContent: String? = nil
     @Published var errorMessage: String? = nil
     @Published var isLoading: Bool = false
-    
-    private var currentURL: URL?
     
     func openFile() {
         let panel = NSOpenPanel()
@@ -47,23 +48,25 @@ final class MarkdownViewerViewModel: MarkdownViewerViewModelProtocol {
         Task {
             do {
                 guard url.startAccessingSecurityScopedResource() else {
-                    throw NSError(domain: "FileAccess", code: -1, userInfo: [NSLocalizedDescriptionKey: "Cannot access file"])
+                    throw NSError(domain: "FileAccess", code: -1,
+                                  userInfo: [NSLocalizedDescriptionKey: "Cannot access file"])
                 }
                 defer { url.stopAccessingSecurityScopedResource() }
                 
                 let content = try String(contentsOf: url, encoding: .utf8)
                 
-                let attr: AttributedString
-                if let parsed = try? AttributedString(markdown: content) {
-                    attr = parsed
-                } else {
-                    attr = AttributedString(content) // fallback
-                }
+                // Prepare both representations
+                let attr = (try? AttributedString(markdown: content)) ?? AttributedString(content)
+                let simpleHTML = """
+                <div style="padding: 2rem; max-width: 900px; margin: 0 auto; font-family: serif; line-height: 1.7;">
+                    \(content.replacingOccurrences(of: "\n", with: "<br>"))
+                </div>
+                """
                 
                 await MainActor.run {
-                    self.currentURL = url
                     self.fileName = url.lastPathComponent
-                    self.attributedContent = attr
+                    self.markdownText = content
+                    self.htmlContent = simpleHTML   // fallback; replace with real parser if desired
                     self.errorMessage = nil
                     self.isLoading = false
                 }
