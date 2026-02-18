@@ -61,6 +61,8 @@ struct ContentView: View {
                 // Rendered Markdown
                 ScrollView {
                     Text(attributed)
+                        .font(.system(.body, design: .serif))
+                        .lineSpacing(6)
                         .padding(24)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
